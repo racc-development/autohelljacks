@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/manuals">
+        <file>helljack.txt</file>
+        <file>grammarjack.txt</file>
+        <file>jumpingjack.txt</file>
+    </qresource>
+</RCC>

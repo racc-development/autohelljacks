@@ -1,0 +1,7 @@
+name:Helljack
+jump
+startLetterLoop
+say:%uppercaseLetter%
+jump
+endLetterLoop
+say:%uppercaseWord%
