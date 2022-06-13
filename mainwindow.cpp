@@ -1,5 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+
+#include <iostream>
+#include "Windows.h"
+#include <string>
+#include <vector>
+
 #include <QFile>
 #include <QString>
 #include <QDebug>
@@ -7,22 +13,16 @@
 #include <QStringList>
 #include <QRandomGenerator>
 #include <QTime>
+#include <QThread>
+
 #include <QCoreApplication>
 #include <QThread>
-#include <iostream>
-#include "Windows.h"
 #include <QAbstractEventDispatcher>
 #include <QAbstractNativeEventFilter>
 #include <QGuiApplication>
 #include <QDirIterator>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <QRadioButton>
 #include <QApplication>
 #include <QByteArray>
-#include <QTabWidget>
-#include <QScrollArea>
 #include <QGridLayout>
 #include <QtWidgets>
 #include <QButtonGroup>
@@ -122,6 +122,7 @@ std::string MainWindow::NumberToWord(int number, bool referred) {
   return "error";
 }
 
+
 void MainWindow::GenerateTitles() {
   QFile file(":/titles.txt");
   file.open(QIODevice::ReadOnly);
@@ -135,6 +136,7 @@ void MainWindow::GenerateTitles() {
 
 }
 
+// i probably could've done this better, but it works fine enough
 void MainWindow::SetStart() {
     this->status = 1;
     this -> centralWidget() -> findChild < QPushButton * > ("startButton") -> setDisabled(true);
@@ -160,7 +162,6 @@ void MainWindow::SetStopped() {
 }
 
 
-
 MainWindow::MainWindow(QWidget * parent): QMainWindow(parent), ui(new Ui::MainWindow) {
   this -> setFixedSize(QSize(570, 260));
   ui -> setupUi(this);
@@ -169,8 +170,6 @@ MainWindow::MainWindow(QWidget * parent): QMainWindow(parent), ui(new Ui::MainWi
   this -> SetUpHook();
   windowPointer = this;
   // set up manuals
-  //⌅
-
 
   QDirIterator it(":/manuals", QDirIterator::Subdirectories);
   int count = 0;
@@ -184,10 +183,10 @@ MainWindow::MainWindow(QWidget * parent): QMainWindow(parent), ui(new Ui::MainWi
     QByteArray baFileName = file.fileName().toLocal8Bit();
     const char * fileCharName = baFileName.data();
     QRadioButton * button = new QRadioButton(QApplication::translate(fileCharName, charName));
-    // see line 158
+    // see line 220
     button->setObjectName(fileCharName);
     // by default helljack(s) will be selected
-    //QString comparer = QString("Helljack");
+
     if (name == QString("Helljack")) {
       button -> setChecked(true);
       this -> centralWidget() -> findChild < QGridLayout * > ("manualGridLayout") -> addWidget(button, 0, 0);
@@ -208,7 +207,7 @@ MainWindow::~MainWindow() {
 void MainWindow::on_startButton_clicked() {
   HWND window = FindWindowW(NULL, L"Roblox");
   if (window != 0) {
-    //this->centralWidget()->findChild<QGridLayout *>("manualGridLayout")
+
     SetForegroundWindow(window);
     this -> window = window;
     if (this -> status == 0) {
@@ -230,6 +229,7 @@ void MainWindow::on_startButton_clicked() {
       QProgressBar* bar = this -> centralWidget() -> findChild < QProgressBar * > ("progress");
       bar->setValue(0);
       bar->setMaximum(countTimes);
+
       this->SetStart();
       this->ReadManual(readerLines, countTimes);
     } else if (this -> status == 2) {
@@ -254,7 +254,7 @@ void MainWindow::ReadManual(QStringList readerLines, int countTimes) {
             if (this->status == 0) {
                 break;
             }
-          //  QString line = readerLines[lineI].trimmed();
+
             this->ProcessLine(lineI, readerLines, countI);
             QProgressBar* bar = this -> centralWidget() -> findChild < QProgressBar * > ("progress");
             bar->setValue(countI + 1);
@@ -272,10 +272,6 @@ void MainWindow::ProcessLine(int lineI, QStringList readerLines, int countTimes,
     while (this->status == 2)
     {
           delay(500);
-          //if (GetForegroundWindow() == this->window) {
-          //    this->SetStart();
-          //}
-      //  QThread::msleep(3000);
     }
 
     if (this->status == 0) {
@@ -385,10 +381,6 @@ void MainWindow::ProcessLine(int lineI, QStringList readerLines, int countTimes,
         while (this->status == 2)
         {
               delay(500);
-              //if (GetForegroundWindow() == this->window) {
-              //    this->SetStart();
-              //}
-          //  QThread::msleep(3000);
         }
 
         if (this->status == 0) {
@@ -417,6 +409,7 @@ void MainWindow::PressKey(WORD key, DWORD flags) {
 
 void MainWindow::on_pauseCombo_currentIndexChanged(int index)
 {
+    // function keys go from F1 (112) to F12 (123)
     this->pauseKeybind = 112 + index;
 }
 
@@ -425,6 +418,10 @@ void MainWindow::on_startCombo_currentIndexChanged(int index)
 {
     this->startKeybind = 112 + index;
 }
+
+
+
+
 
 
 
