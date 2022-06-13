@@ -70,7 +70,7 @@ inline void delay(int millisecondsWait)
     loop.exec();
 }
 
-std::string MainWindow::NumberToWord(int number) {
+std::string MainWindow::NumberToWord(int number, bool referred) {
     vector < std::string  > ones {
       "",
       "one",
@@ -107,18 +107,21 @@ std::string MainWindow::NumberToWord(int number) {
       "eighty",
       "ninety"
     };
-  number++;
+  if (!referred) {
+      number++;
+  }
   if (number < 10) {
     return ones[number];
   } else if (number < 20) {
     return teens[number - 10];
   } else if (number < 100) {
-    return tens[number / 10] + ((number % 10 != 0) ? " " + this->NumberToWord(number % 10) : "");
+    return tens[number / 10] + ((number % 10 != 0) ? " " + this->NumberToWord(number % 10, true) : "");
   } else if (number < 1000) {
-    return this->NumberToWord(number / 100) + " hundred" + ((number % 100 != 0) ? " " + this->NumberToWord(number % 100) : "");
+    return this->NumberToWord(number / 100, true) + " hundred" + ((number % 100 != 0) ? " " + this->NumberToWord(number % 100, true) : "");
   }
   return "error";
 }
+
 
 void MainWindow::GenerateTitles() {
   QFile file(":/titles.txt");
@@ -145,9 +148,17 @@ void MainWindow::SetStart() {
 void MainWindow::SetPaused() {
     this->status = 2;
     this -> centralWidget() -> findChild < QPushButton * > ("startButton") -> setDisabled(false);
-    this -> centralWidget() -> findChild < QPushButton * > ("stopButton") -> setDisabled(true);
-    this -> centralWidget() -> findChild < QPushButton * > ("pauseButton") -> setDisabled(false);
+    this -> centralWidget() -> findChild < QPushButton * > ("stopButton") -> setDisabled(false);
+    this -> centralWidget() -> findChild < QPushButton * > ("pauseButton") -> setDisabled(true);
     this -> centralWidget() -> findChild < QLabel * > ("statusLabel") -> setText("<html><head/><body><p>Current Status: <span style=\" font-weight:700; color:#7c83ff;\">Paused</span></p></body></html>");
+}
+
+void MainWindow::SetStopped() {
+    this->status = 0;
+    this -> centralWidget() -> findChild < QPushButton * > ("startButton") -> setDisabled(false);
+    this -> centralWidget() -> findChild < QPushButton * > ("stopButton") -> setDisabled(true);
+    this -> centralWidget() -> findChild < QPushButton * > ("pauseButton") -> setDisabled(true);
+    this -> centralWidget() -> findChild < QLabel * > ("statusLabel") -> setText("<html><head/><body><p>Current Status: <span style=\" font-weight:700; color:#ff0000;\">Stopped</span></p></body></html>");
 }
 
 
@@ -159,8 +170,6 @@ MainWindow::MainWindow(QWidget * parent): QMainWindow(parent), ui(new Ui::MainWi
   this -> SetUpHook();
   windowPointer = this;
   // set up manuals
-  //⌅
-
 
   QDirIterator it(":/manuals", QDirIterator::Subdirectories);
   int count = 0;
@@ -174,10 +183,10 @@ MainWindow::MainWindow(QWidget * parent): QMainWindow(parent), ui(new Ui::MainWi
     QByteArray baFileName = file.fileName().toLocal8Bit();
     const char * fileCharName = baFileName.data();
     QRadioButton * button = new QRadioButton(QApplication::translate(fileCharName, charName));
-    // see line 210
+    // see line 220
     button->setObjectName(fileCharName);
     // by default helljack(s) will be selected
-      
+
     if (name == QString("Helljack")) {
       button -> setChecked(true);
       this -> centralWidget() -> findChild < QGridLayout * > ("manualGridLayout") -> addWidget(button, 0, 0);
@@ -198,7 +207,7 @@ MainWindow::~MainWindow() {
 void MainWindow::on_startButton_clicked() {
   HWND window = FindWindowW(NULL, L"Roblox");
   if (window != 0) {
-      
+
     SetForegroundWindow(window);
     this -> window = window;
     if (this -> status == 0) {
@@ -220,7 +229,7 @@ void MainWindow::on_startButton_clicked() {
       QProgressBar* bar = this -> centralWidget() -> findChild < QProgressBar * > ("progress");
       bar->setValue(0);
       bar->setMaximum(countTimes);
-        
+
       this->SetStart();
       this->ReadManual(readerLines, countTimes);
     } else if (this -> status == 2) {
@@ -232,6 +241,11 @@ void MainWindow::on_startButton_clicked() {
     messageBox.setFixedSize(500, 200);
     return;
   }
+}
+
+void MainWindow::on_stopButton_clicked()
+{
+    this -> SetStopped();
 }
 
 void MainWindow::ReadManual(QStringList readerLines, int countTimes) {
@@ -404,4 +418,10 @@ void MainWindow::on_startCombo_currentIndexChanged(int index)
 {
     this->startKeybind = 112 + index;
 }
+
+
+
+
+
+
 
