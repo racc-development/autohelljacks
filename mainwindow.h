@@ -30,6 +30,8 @@ private slots:
 
   void on_startCombo_currentIndexChanged(int index);
 
+  void on_stopButton_clicked();
+
 private:
     void GenerateTitles();
     void SetStart();
@@ -43,7 +45,7 @@ private:
 
 
     HWND window;
-    std::string NumberToWord(int number);
+    std::string NumberToWord(int number, bool referred = false);
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H
