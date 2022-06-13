@@ -45,7 +45,6 @@ void MainWindow::SetUpHook() {
         KBDLLHOOKSTRUCT kbdStruct;
         kbdStruct = *((KBDLLHOOKSTRUCT*)l);
         int vk = kbdStruct.vkCode;
-        qInfo() << windowPointer->status;
         // ignore up signals
         if (kbdStruct.flags != 128) {
         if ((vk == windowPointer->startKeybind) && (windowPointer->status == 0 || windowPointer->status == 2)) {
@@ -278,7 +277,6 @@ void MainWindow::ProcessLine(int lineI, QStringList readerLines, int countTimes,
         return;
     }
     QString line = readerLines[lineI].trimmed();
-    qInfo() << "Reading line" << line;
     // as lines inside of a letterloop are lines on their own, the reader will go over them as if it was a normal line
     // this checks to see if the line is nested inside a letter loop
     if (line != QString("startLetterLoop") && readerLines.indexOf("endLetterLoop\r", lineI) != -1 && readerLines.indexOf("startLetterLoop\r", lineI) == -1 && nameFixedForLetters == QString("")) {
